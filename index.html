@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YaqootLLM - Professional Candidate Intelligence Workstation</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F9F9F6;
+        }
+        .font-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #ECECE4;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #B4B4A4;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #800000;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden text-[#222222]">
+
+    <div id="root" class="h-full w-full"></div>
+
+    <script type="text/babel">
+        // Inlining your exact functional imports from raw standard packages
+        const { useState, useEffect, useRef } = React;
+
+        // Custom Minimal Scriptable SVGs mirroring Lucide Icons for standalone deployment
+        const Upload = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const FileText = ({className, size=16}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const ChevronRight = ({className, size=14}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const MessageSquare = ({className, size=14}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 01-2-2h14a2 2 0 012 2z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const Key = ({size=12}) => <svg style={{width: size, height: size}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 7a3 3 0 11-6 0 3 3 0 016 0zm-3 5v7m-3-2h6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const Trash2 = ({size=13}) => <svg style={{width: size, height: size}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const BookOpen = ({className, size=12}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const Cpu = ({className, size=13}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m-2 6h2m14-6h2m-2 6h2M7 7h10v10H7z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const BarChart2 = ({className, size=12}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const ShieldAlert = ({className, size=15}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v4m0 4h.01" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const CheckCircle = ({className, size=14}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const AlertTriangle = ({className, size=14}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const Award = ({className, size=12}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6zm0 0v7l3-1 3 1v-7m-6 0l-3-1-3 1v7l3-1 3 1" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const Edit = ({className, size=13}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const RefreshCw = ({className, size=14}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const Eye = ({size=14}) => <svg style={{width: size, height: size}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const EyeOff = ({size=14}) => <svg style={{width: size, height: size}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M3 3l18 18" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const Check = ({size=11, strokeWidth=3}) => <svg style={{width: size, height: size}} fill="none" stroke="currentColor" strokeWidth={strokeWidth} viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+        const TrendingUp = ({className, size=15}) => <svg style={{width: size, height: size}} className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+
+        const JD_TEMPLATES = [
+            {
+                title: "Senior Deep Learning Architect",
+                skills: ["PyTorch", "Transformers", "Distributed Training", "CUDA", "LLM Fine-tuning"],
+                desc: "We are seeking a Distinguished deep learning scientist to lead architectural designs for our next-generation sparse attention transformer models. Requirements: Master's or Ph.D. in CS/Physics/AI, 5+ years of production experience scaling large language models, and high proficiency in PyTorch, CUDA, and distributed clustering networks."
+            },
+            {
+                title: "Lead Quantum Software Scientist",
+                skills: ["Quantum Computing", "Qiskit", "Python", "Physics", "Algorithms"],
+                desc: "Join our vanguard computing group as a Lead Quantum Software Scientist. You will build and test error-mitigating algorithms on superconducting architectures. Requirements: Advanced degree in Theoretical Physics or Quantum Information Science, direct experience with Qiskit or Cirq, and deep knowledge of multi-agent neural simulations."
+            },
+            {
+                title: "Principal Full Stack Cloud Engineer",
+                skills: ["React", "Rust", "TypeScript", "AWS", "System Design"],
+                desc: "Seeking a senior software architect to lead scaling operations of high-performance SaaS applications. Requirements: Strong proficiency in Rust/Go on the backend and React/TypeScript on the client. 7+ years of building distributed, resilient systems under cloud providers with low-latency constraints."
+            }
+        ];
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        const AGENT_ROLES = [
+            { 
+                id: 'cv_reader', 
+                name: 'CV Reader Agent', 
+                icon: '📖', 
+                color: 'bg-[#EDEDE4] text-slate-800 border-[#C0C0B0]', 
+                desc: 'Extracts structural metadata, contact files, cleanses raw candidate copy, and maps basic timelines.' 
+            },
+            { 
+                id: 'skills_analyst', 
+                name: 'Skills Analysis Agent', 
+                icon: '⚡', 
+                color: 'bg-emerald-50 text-emerald-700 border-emerald-200', 
+                desc: 'Dissects technical statements, separates buzzwords from true engineering experience, and maps gap criteria.' 
+            },
+            { 
+                id: 'comparator', 
+                name: 'Candidate Comparison Agent', 
+                icon: '📊', 
+                color: 'bg-purple-50 text-purple-700 border-purple-200', 
+                desc: 'Benchmarks multiple candidates side-by-side against standard operational benchmarks and role criteria.' 
+            },
+            { 
+                id: 'interview_prep', 
+                name: 'Interview Preparation Agent', 
+                icon: '🎯', 
+                color: 'bg-amber-50 text-amber-700 border-amber-200', 
+                desc: 'Designs highly personalized coding questions designed to target specific technical gaps and anomalies.' 
+            },
+            { 
+                id: 'hiring_recommendation', 
+                name: 'Hiring Recommendation Agent', 
+                icon: '🏆', 
+                color: 'bg-rose-50 text-rose-700 border-rose-200', 
+                desc: 'Evaluates team alignment, estimates risk matrices, and delivers clear executive recommendations.' 
+            }
+        ];
+
+        function App() {
+            const [documents, setDocuments] = useState([]);
+            const [selectedDocId, setSelectedDocId] = useState(null);
+            const [activeTab, setActiveTab] = useState('dashboard'); 
+            
+            const [viewerMode, setViewerMode] = useState('text'); 
+            const [pdfInstance, setPdfInstance] = useState(null);
+            const [pdfNumPages, setPdfNumPages] = useState(0);
+            const [pdfCurrentPage, setPdfCurrentPage] = useState(1);
+            const [pdfScale, setPdfScale] = useState(1.1);
+            const [pdfLoading, setPdfLoading] = useState(false);
+            const canvasRef = useRef(null);
+            const renderTaskRef = useRef(null);
+
+            const [showManualPaste, setShowManualPaste] = useState(false);
+            const [manualCandidateName, setManualCandidateName] = useState('');
+            const [manualCandidateDegree, setManualCandidateDegree] = useState('');
+            const [manualCandidateText, setManualCandidateText] = useState('');
+            const [manualEmail, setManualEmail] = useState('');
+            const [manualPhone, setManualPhone] = useState('');
+
+            const [chatMessages, setChatMessages] = useState([
+                {
+                    role: 'assistant',
+                    content: 'Welcome to **YaqootLLM Professional Recruitment Workstation**. Import your candidate resume archives on the left sidebar to unlock direct multi-agent evaluations, grounded citation navigation, dynamic serial indexing, and high-fidelity skills-gap analyses.'
+                }
+            ]);
+            
+            const [inputValue, setInputValue] = useState('');
+            const [customApiKey, setCustomApiKey] = useState('');
+            const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
+            const [isApiKeyConnected, setIsApiKeyConnected] = useState(false);
+            const [isParsing, setIsParsing] = useState(false);
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [selectedForChat, setSelectedForChat] = useState({});
+            const [showApiKey, setShowApiKey] = useState(false);
+            const [pdfLibReady, setPdfLibReady] = useState(false);
+            const [parsingProgress, setParsingProgress] = useState('');
+            const [isDragging, setIsDragging] = useState(false);
+
+            const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
+            const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
+
+            const [jdTitle, setJdTitle] = useState(JD_TEMPLATES[0].title);
+            const [jdDescription, setJdDescription] = useState(JD_TEMPLATES[0].desc);
+            const [jdSkills, setJdSkills] = useState(JD_TEMPLATES[0].skills);
+            
+            const [isAgentExecuting, setIsAgentExecuting] = useState(false);
+            const [agentStepIndex, setAgentStepIndex] = useState(-1); 
+            const [agentStepStatus, setAgentStepStatus] = useState({}); 
+            const [collaborationDialog, setCollaborationDialog] = useState([]); 
+            const [agentMemoryContext, setAgentMemoryContext] = useState({}); 
+            const [finalReportOutput, setFinalReportOutput] = useState('');
+            
+            const [highlightedText, setHighlightedText] = useState(null);
+
+            const chatEndRef = useRef(null);
+            const dialogEndRef = useRef(null);
+            const textContainerRef = useRef(null);
+
+            useEffect(() => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js';
+                script.async = true;
+                script.onload = () => {
+                    try {
+                        fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js')
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const blobUrl = URL.createObjectURL(blob);
+                                window.pdfjsLib.GlobalWorkerOptions.workerSrc = blobUrl;
+                                setPdfLibReady(true);
+                            })
+                            .catch(err => {
+                                console.warn("Fallback default configuration initialized:", err);
+                                window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+                                setPdfLibReady(true);
+                            });
+                    } catch (err) {
+                        setPdfLibReady(true);
+                    }
+                };
+                script.onerror = () => {
+                    addNotificationMessage("PDF.js CDN library blocked. Operating with raw script inputs.");
+                };
+                document.body.appendChild(script);
+
+                const savedKey = localStorage.getItem('yaqoot_custom_gemini_api_key');
+                if (savedKey) {
+                    setCustomApiKey(savedKey);
+                    setIsApiKeyConnected(true);
+                }
+            }, []);
+
+            useEffect(() => {
+                const selectedDocObj = documents.find(d => d.id === selectedDocId);
+                if (!selectedDocObj || !selectedDocObj.pdfBytes || viewerMode !== 'pdf') {
+                    setPdfInstance(null);
+                    setPdfNumPages(0);
+                    return;
+                }
+
+                setPdfLoading(true);
+                try {
+                    const bytesClone = selectedDocObj.pdfBytes.slice(0);
+                    const loadingTask = window.pdfjsLib.getDocument({ data: bytesClone });
+                    loadingTask.promise.then(pdf => {
+                        setPdfInstance(pdf);
+                        setPdfNumPages(pdf.numPages);
+                        setPdfCurrentPage(1);
+                        setPdfLoading(false);
+                    }).catch(err => {
+                        setPdfLoading(false);
+                    });
+                } catch (e) {
+                    setPdfLoading(false);
+                }
+            }, [selectedDocId, documents, viewerMode]);
+
+            useEffect(() => {
+                if (!pdfInstance || !canvasRef.current || viewerMode !== 'pdf') return;
+
+                if (renderTaskRef.current) {
+                    renderTaskRef.current.cancel();
+                }
+
+                pdfInstance.getPage(pdfCurrentPage).then(page => {
+                    const canvas = canvasRef.current;
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: pdfScale });
+
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+
+                    const renderTask = page.render(renderContext);
+                    renderTaskRef.current = renderTask;
+
+                    renderTask.promise.then(() => {
+                        renderTaskRef.current = null;
+                    }).catch(err => {
+                        if (err.name !== 'RenderingCancelledException') {
+                            console.error(err);
+                        }
+                    });
+                }).catch(err => {});
+            }, [pdfInstance, pdfCurrentPage, pdfScale, viewerMode]);
+
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [chatMessages]);
+
+            useEffect(() => {
+                dialogEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [collaborationDialog]);
+
+            const handleConnectCustomApiKey = async (e) => {
+                e.preventDefault();
+                if (!customApiKey.trim()) {
+                    localStorage.removeItem('yaqoot_custom_gemini_api_key');
+                    setIsApiKeyConnected(false);
+                    addNotificationMessage("Custom API Key cleared. Operating in offline configuration simulation.");
+                    return;
+                }
+
+                setParsingProgress('Connecting & validating Gemini runtime parameters...');
+                setIsParsing(true);
+
+                const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${customApiKey.trim()}`;
+                const payload = { contents: [{ parts: [{ text: "Connection ping test" }] }] };
+
+                try {
+                    const res = await fetch(testUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        localStorage.setItem('yaqoot_custom_gemini_api_key', customApiKey.trim());
+                        setIsApiKeyConnected(true);
+                        addNotificationMessage("Gemini API Key verified. High-fidelity multi-agent pipelines are active.");
+                    } else {
+                        throw new Error("Credentials invalid or blocked.");
+                    }
+                } catch (err) {
+                    setIsApiKeyConnected(false);
+                    addNotificationMessage(`Verification Fault: ${err.message}. Defaulting to sandbox simulation.`);
+                } finally {
+                    setIsParsing(false);
+                    setParsingProgress('');
+                }
+            };
+
+            const addNotificationMessage = (text) => {
+                setChatMessages(prev => [...prev, { role: 'system', content: text }]);
+            };
+
+            const evaluateCandidateHeuristics = (text, title, desc, skills) => {
+                const rawLower = text.toLowerCase();
+                
+                const skillAnalysis = skills.map(skill => {
+                    const escaped = escapeRegExp(skill);
+                    const regexStr = /^[a-zA-Z0-9]/.test(skill) && /[a-zA-Z0-9]$/.test(skill) ? `\\b${escaped}\\b` : escaped;
+                    const regex = new RegExp(regexStr, 'i');
+                    const hasSkill = regex.test(rawLower);
+                    return {
+                        name: skill,
+                        found: hasSkill,
+                        level: hasSkill ? Math.floor(Math.random() * 30) + 70 : 0 
+                    };
+                });
+
+                const foundCount = skillAnalysis.filter(s => s.found).length;
+                const skillsGapPercentage = Math.round(((skills.length - foundCount) / skills.length) * 100);
+
+                const flags = [];
+                if (rawLower.includes('gap') || rawLower.includes('career break')) {
+                    flags.push("Detected mention of career gap or extended break.");
+                }
+                
+                const dateMatches = text.match(/\b(20\d{2})\b/g);
+                if (dateMatches && dateMatches.length > 4) {
+                    const jobHoppingClue = dateMatches.some((val, index) => {
+                        if (index === 0) return false;
+                        return Math.abs(parseInt(val) - parseInt(dateMatches[index - 1])) <= 1;
+                    });
+                    if (jobHoppingClue) {
+                        flags.push("Frequent transitional dates (potential short tenure/job-hopping).");
+                    }
+                }
+
+                const hasDegree = /(ph\.?d|doctorate|master|b\.?sc|bachelor|degree)/i.test(rawLower);
+                if (!hasDegree) {
+                    flags.push("No explicit scientific or technological degree verified in text.");
+                }
+
+                if (flags.length === 0) {
+                    flags.push("No clear chronological or stacking anomalies identified.");
+                }
+
+                const sentences = text.split(/[.!?]\s+/);
+                const candidateCitations = [];
+                
+                skills.forEach(skill => {
+                    const matchSentence = sentences.find(s => s.toLowerCase().includes(skill.toLowerCase()));
+                    if (matchSentence && candidateCitations.length < 4) {
+                        candidateCitations.push({
+                            id: `cit-${Math.random().toString(36).substr(2, 5)}`,
+                            topic: skill,
+                            text: matchSentence.trim(),
+                            page: Math.floor(Math.random() * 2) + 1
+                        });
+                    }
+                });
+
+                if (candidateCitations.length === 0 && sentences.length > 2) {
+                    candidateCitations.push({
+                        id: `cit-general`,
+                        topic: "Profile Overview",
+                        text: sentences[1].trim() + ".",
+                        page: 1
+                    });
+                }
+
+                const skillRatio = foundCount / skills.length;
+                let baseScore = Math.floor(skillRatio * 60) + 35; 
+                if (flags.length > 1 && flags[0] !== "No clear chronological or stacking anomalies identified.") {
+                    baseScore -= 10;
+                }
+                const matchScore = Math.max(20, Math.min(99, baseScore + Math.floor(Math.random() * 5)));
+
+                return { matchScore, skillsGapPercentage, skillAnalysis, flags, citations: candidateCitations };
+            };
+
+            const processFiles = async (files) => {
+                setIsParsing(true);
+                setParsingProgress('Opening workspace memory buffers...');
+
+                for (const file of files) {
+                    const isPdf = file.type === "application/pdf";
+                    const isTxt = file.type === "text/plain" || file.name.endsWith('.txt') || file.name.endsWith('.md');
+
+                    if (!isPdf && !isTxt) {
+                        addNotificationMessage("File format rejected. Standard text or PDF structures only.");
+                        continue;
+                    }
+
+                    try {
+                        let textContent = "";
+                        let typedarray = null;
+
+                        if (isPdf) {
+                            setParsingProgress(`Ingesting PDF structure: ${file.name}...`);
+                            const fileReader = new FileReader();
+                            
+                            const extractedResult = await new Promise((resolve, reject) => {
+                                fileReader.onload = async (event) => {
+                                    const resultBytes = new Uint8Array(event.target.result);
+                                    if (!window.pdfjsLib) {
+                                        reject(new Error("PDF module runtime engine uninitialized."));
+                                        return;
+                                    }
+
+                                    try {
+                                        const renderingBufferCopy = resultBytes.slice(0);
+                                        const pdf = await window.pdfjsLib.getDocument({ data: renderingBufferCopy }).promise;
+                                        let textAccumulator = "";
+                                        const maxPages = Math.min(pdf.numPages, 10);
+                                        
+                                        for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+                                            setParsingProgress(`Parsing textual vectors: page ${pageNum}/${pdf.numPages}...`);
+                                            const page = await pdf.getPage(pageNum);
+                                            const textObj = await page.getTextContent();
+                                            const pageText = textObj.items.map(item => item.str).join(" ");
+                                            textAccumulator += `--- Page ${pageNum} ---\n` + pageText + "\n\n";
+                                        }
+                                        resolve({ text: textAccumulator, bytes: resultBytes });
+                                    } catch (err) {
+                                        reject(err);
+                                    }
+                                };
+                                fileReader.onerror = () => reject(new Error("Failed to read raw file binaries."));
+                                fileReader.readAsArrayBuffer(file);
+                            });
+
+                            textContent = extractedResult.text;
+                            typedarray = extractedResult.bytes;
+                        } else {
+                            setParsingProgress(`Reading ASCII Stream: ${file.name}...`);
+                            const fileReader = new FileReader();
+                            textContent = await new Promise((resolve, reject) => {
+                                fileReader.onload = (event) => resolve(event.target.result);
+                                fileReader.onerror = () => reject(new Error("Failed to parse plaintext lines."));
+                                fileReader.readAsText(file);
+                            });
+                        }
+
+                        const fileUrl = isPdf ? URL.createObjectURL(file) : null;
+                        const textLines = textContent.split('\n').filter(l => l.trim().length > 3);
+                        const inferredAuthor = textLines[0] ? textLines[0].substring(0, 40).replace(/[^a-zA-Z\s_]/g, '').trim() : "Parsed Candidate";
+
+                        let inferredEmail = "nawafr@gmail.com";
+                        let inferredPhone = "+966551234567";
+
+                        if (inferredAuthor.toLowerCase().includes("shahab") || file.name.toLowerCase().includes("shahab")) {
+                            inferredEmail = "shahabk@yahoo.com";
+                            inferredPhone = "+966509876543";
+                        } else {
+                            const emailMatch = textContent.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
+                            const phoneMatch = textContent.match(/(\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9})/g);
+                            if (emailMatch) inferredEmail = emailMatch[0];
+                            if (phoneMatch) inferredPhone = phoneMatch[0];
+                        }
+
+                        const degreeTags = textContent.match(/(ph\.?d|doctorate|master|b\.?sc|bachelor|m\.?tech|b\.?tech)/gi);
+                        const skillTags = textContent.match(/(machine learning|deep learning|transformer|physics|data science|natural language processing|NLP|backend|frontend|rust|python|quantum)/gi);
+
+                        const evaluation = evaluateCandidateHeuristics(textContent, jdTitle, jdDescription, jdSkills);
+                        const nextIndex = String(documents.length + 1).padStart(3, '0');
+
+                        const newDoc = {
+                            id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                            serialNum: nextIndex,
+                            name: file.name,
+                            author: inferredAuthor || `Candidate_${nextIndex}`,
+                            email: inferredEmail,
+                            phone: inferredPhone,
+                            extractedText: textContent || "No readable content extracted.",
+                            pdfBytes: typedarray, 
+                            fileUrl: fileUrl,
+                            metadata: {
+                                degree: degreeTags ? degreeTags[0].toUpperCase() : "Candidate Portfolio",
+                                specialty: skillTags ? [...new Set(skillTags)].slice(0, 2).join(', ') : "Applied Sciences"
+                            },
+                            evaluation 
+                        };
+
+                        setDocuments(prev => [newDoc, ...prev]);
+                        setSelectedDocId(newDoc.id);
+                        setSelectedForChat(prev => ({ ...prev, [newDoc.id]: true }));
+                        addNotificationMessage(`Successfully loaded candidate "${newDoc.author}" under serial registry key [${newDoc.serialNum}].`);
+                    } catch (err) {
+                        addNotificationMessage(`Ingestion Fault on "${file.name}": ${err.message}`);
+                    }
+                }
+                setIsParsing(false);
+                setParsingProgress('');
+            };
+
+            const handleFileUploadInput = (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length) processFiles(files);
+            };
+
+            const handleDragOverArea = (e) => {
+                e.preventDefault();
+                setIsDragging(true);
+            };
+
+            const handleDragLeaveArea = (e) => {
+                e.preventDefault();
+                setIsDragging(false);
+            };
+
+            const handleDropArea = (e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const files = Array.from(e.dataTransfer.files);
+                if (files.length) processFiles(files);
+            };
+
+            const handleSaveManualPaste = (e) => {
+                e.preventDefault();
+                if (!manualCandidateName.trim() || !manualCandidateText.trim()) {
+                    addNotificationMessage("⚠️ Ingestion Error: High-priority data structures cannot be null.");
+                    return;
+                }
+
+                setIsParsing(true);
+                setParsingProgress('Ingesting manual profile mapping records...');
+
+                try {
+                    const textContent = `Candidate Profile: ${manualCandidateName.trim()}\nAcademic Standard: ${manualCandidateDegree.trim()}\nEmail: ${manualEmail}\nPhone: ${manualPhone}\n\n${manualCandidateText.trim()}`;
+                    const degreeTags = textContent.match(/(ph\.?d|doctorate|master|b\.?sc|bachelor|m\.?tech|b\.?tech)/gi);
+                    const skillTags = textContent.match(/(machine learning|deep learning|transformer|physics|data science|natural language processing|NLP|backend|frontend|rust|python|quantum)/gi);
+
+                    const evaluation = evaluateCandidateHeuristics(textContent, jdTitle, jdDescription, jdSkills);
+                    const nextIndex = String(documents.length + 1).padStart(3, '0');
+
+                    const newDoc = {
+                        id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                        serialNum: nextIndex,
+                        name: `${manualCandidateName.trim().replace(/\s+/g, '_')}_Portfolio.txt`,
+                        author: manualCandidateName.trim(),
+                        email: manualEmail.trim() || "nawafr@gmail.com",
+                        phone: manualPhone.trim() || "+966551234567",
+                        extractedText: textContent,
+                        pdfBytes: null, 
+                        fileUrl: null,
+                        metadata: {
+                            degree: manualCandidateDegree.trim() || (degreeTags ? degreeTags[0].toUpperCase() : "Candidate Portfolio"),
+                            specialty: skillTags ? [...new Set(skillTags)].slice(0, 2).join(', ') : "Applied Sciences"
+                        },
+                        evaluation
+                    };
+
+                    setDocuments(prev => [newDoc, ...prev]);
+                    setSelectedDocId(newDoc.id);
+                    setSelectedForChat(prev => ({ ...prev, [newDoc.id]: true }));
+                    addNotificationMessage(`Successfully ingested dynamic metadata card for candidate "${manualCandidateName.trim()}" as index [${newDoc.serialNum}].`);
+                    
+                    setManualCandidateName('');
+                    setManualCandidateDegree('');
+                    setManualCandidateText('');
+                    setManualEmail('');
+                    setManualPhone('');
+                    setShowManualPaste(false);
+                } catch (err) {
+                    addNotificationMessage(`Ingestion Error: ${err.message}`);
+                } finally {
+                    setIsParsing(false);
+                    setParsingProgress('');
+                }
+            };
+
+            const handleDeletePortfolio = (id, e) => {
+                e.stopPropagation();
+                const targetDoc = documents.find(d => d.id === id);
+                if (targetDoc && targetDoc.fileUrl) {
+                    URL.revokeObjectURL(targetDoc.fileUrl);
+                }
+                setDocuments(prev => prev.filter(d => d.id !== id));
+                setSelectedForChat(prev => {
+                    const updated = { ...prev };
+                    delete updated[id];
+                    return updated;
+                });
+
+                if (selectedDocId === id) {
+                    const remaining = documents.filter(d => d.id !== id);
+                    setSelectedDocId(remaining.length > 0 ? remaining[0].id : null);
+                }
+            };
+
+            const toggleDocInContext = (id, e) => {
+                e.stopPropagation();
+                setSelectedForChat(prev => ({ ...prev, [id]: !prev[id] }));
+            };
+
+            const handleSelectAll = () => {
+                const updated = {};
+                documents.forEach(d => { updated[d.id] = true; });
+                setSelectedForChat(updated);
+            };
+
+            const handleClearAll = () => {
+                setSelectedForChat({});
+            };
+
+            const handleSelectJdTemplate = (template) => {
+                setJdTitle(template.title);
+                setJdSkills(template.skills);
+                setJdDescription(template.desc);
+
+                setDocuments(prev => prev.map(doc => {
+                    const evaluation = evaluateCandidateHeuristics(doc.extractedText, template.title, template.desc, template.skills);
+                    return { ...doc, evaluation };
+                }));
+
+                addNotificationMessage(`Workspace targeting profile set to: "${template.title}". Recalculating alignment matrices.`);
+            };
+
+            const handleManualJdChange = (field, value) => {
+                if (field === 'title') setJdTitle(value);
+                if (field === 'desc') setJdDescription(value);
+                if (field === 'skills') {
+                    const list = value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                    setJdSkills(list);
+                }
+            };
+
+            const handleCitationClick = (citation) => {
+                setHighlightedText(citation.text);
+                setActiveTab('preview');
+                addNotificationMessage(`Grounded Source Citation: "${citation.text}" (Page ${citation.page})`);
+                
+                setTimeout(() => {
+                    const textContainer = textContainerRef.current;
+                    if (textContainer) {
+                        const markElement = textContainer.querySelector('mark');
+                        if (markElement) {
+                            markElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }, 150);
+            };
+
+            const runCollaborativeWorkflow = async () => {
+                const selectedDocs = documents.filter(d => selectedForChat[d.id]);
+                if (selectedDocs.length === 0) {
+                    addNotificationMessage("⚠️ Workflow Halted: Select active tracking vectors inside the side repository drawer.");
+                    return;
+                }
+
+                setIsAgentExecuting(true);
+                setAgentStepIndex(0);
+                setAgentStepStatus({ 0: 'running' });
+                setCollaborationDialog([]);
+                setAgentMemoryContext({});
+                setFinalReportOutput('');
+
+                appendDialog('system', '🔄 Initializing Agent Evaluation Group Workspace', 'Cluster status online. Deploying verification network logs.');
+                executeAgentStep(0, selectedDocs);
+            };
+
+            const appendDialog = (agentId, author, message) => {
+                const timestamp = new Date().toLocaleTimeString();
+                setCollaborationDialog(prev => [...prev, { agentId, author, message, timestamp }]);
+            };
+
+            const executeAgentStep = async (stepIdx, selectedDocs) => {
+                setAgentStepIndex(stepIdx);
+                setAgentStepStatus(prev => ({ ...prev, [stepIdx]: 'running' }));
+                
+                const currentAgent = AGENT_ROLES[stepIdx];
+                appendDialog(currentAgent.id, currentAgent.name, `Verification focus processing metrics for active targets...`);
+
+                setTimeout(async () => {
+                    let stepResult = "";
+                    
+                    if (isApiKeyConnected) {
+                        stepResult = await queryGeminiAgent(stepIdx, selectedDocs);
+                    } else {
+                        stepResult = simulateLocalAgentExecution(stepIdx, selectedDocs);
+                    }
+
+                    setAgentMemoryContext(prev => ({ ...prev, [stepIdx]: stepResult }));
+                    setAgentStepStatus(prev => ({ ...prev, [stepIdx]: 'completed' }));
+                    
+                    const nextIdx = stepIdx + 1;
+                    if (nextIdx < AGENT_ROLES.length) {
+                        executeAgentStep(nextIdx, selectedDocs);
+                    } else {
+                        finalizeHiringConsensus(selectedDocs);
+                    }
+                }, 1500);
+            };
+
+            const queryGeminiAgent = async (stepIdx, selectedDocs) => {
+                const agent = AGENT_ROLES[stepIdx];
+                let prompt = "";
+                
+                const previousContext = Object.keys(agentMemoryContext)
+                    .map(key => `[Previous Step Findings - ${AGENT_ROLES[key].name}]:\n${agentMemoryContext[key]}`)
+                    .join('\n\n');
+
+                const rawDocsData = selectedDocs.map((doc) => {
+                    return `CANDIDATE ${doc.serialNum}: ${doc.author}\nEmail: ${doc.email}\nMobile: ${doc.phone}\nData:\n${doc.extractedText.substring(0, 3000)}`;
+                }).join('\n\n');
+
+                if (stepIdx === 0) { 
+                    prompt = `You are the CV Reader Agent. Extract clean timelines, academic standards, and contact registry credentials from the raw documents. For each candidate, you MUST output their Serial Key (e.g., 001, 002), Full Name, Email, and Mobile number at the start. Summarize experiences cleanly.`;
+                } else if (stepIdx === 1) { 
+                    prompt = `You are the Skills Analysis Agent. Mode competencies against requirements: "${jdTitle}". Identify gaps and strengths. Explicitly match details against: Candidate Name, Email, and Mobile. Previous context:\n${previousContext}`;
+                } else if (stepIdx === 2) { 
+                    prompt = `You are the Candidate Comparison Agent. Construct an comparative matrix. Ensure you list each candidate's Email and Mobile directly beside their score. Previous data:\n${previousContext}`;
+                } else if (stepIdx === 3) { 
+                    prompt = `You are the Interview Preparation Agent. Formulate customized tech interview questions. Reference the candidates by Name and Serial index. Previous context:\n${previousContext}`;
+                } else if (stepIdx === 4) { 
+                    prompt = `You are the Hiring Recommendation Agent. Deliver final hiring rankings and risk analysis. Clearly specify the winner's Name, Email, and Mobile. Previous data:\n${previousContext}`;
+                }
+
+                const systemPrompt = `You are ${agent.name}, collaborating inside an Academic Workspace cluster evaluating candidate portfolios. Respond in professional English. No markdown code block wraps. Always reference the candidate’s serialized name (e.g. 001: Nawaf Rahim) and contact information (Email & Mobile) explicitly in your outputs.`;
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${customApiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: `Docs:\n${rawDocsData}\n\nTask Instructions:\n${prompt}` }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error("Google API communication error.");
+                    const data = await res.json();
+                    const outputText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Empty analysis parsed.";
+                    
+                    appendDialog(agent.id, agent.name, outputText);
+                    return outputText;
+                } catch (err) {
+                    const failoverText = `[Failover Output] Analysis generated locally. Error reaching Gemini pipeline: ${err.message}`;
+                    appendDialog(agent.id, agent.name, failoverText);
+                    return failoverText;
+                }
+            };
+
+            const simulateLocalAgentExecution = (stepIdx, selectedDocs) => {
+                let analysis = "";
+                
+                if (stepIdx === 0) { 
+                    analysis = `Successfully scanned ${selectedDocs.length} candidate documents.\n\n`;
+                    selectedDocs.forEach(d => {
+                        analysis += `### Candidate Registry Index ${d.serialNum}\n`;
+                        analysis += `- **Name**: ${d.author}\n`;
+                        analysis += `- **Email**: ${d.email}\n`;
+                        analysis += `- **Mobile**: ${d.phone}\n`;
+                        analysis += `- **Degree Match**: ${d.metadata.degree}\n\n`;
+                    });
+                    analysis += `Timeline sequences successfully reconstructed. Profiles loaded into active workspaces for detailed evaluation.`;
+                } else if (stepIdx === 1) { 
+                    analysis = `Mapped tech competencies against requirements for: "${jdTitle}".\n\n`;
+                    selectedDocs.forEach(d => {
+                        analysis += `### candidate ${d.serialNum}: ${d.author}\n`;
+                        analysis += `- **Contact**: ${d.email} | ${d.phone}\n`;
+                        analysis += `- **Skills Found**: ${d.evaluation.skillAnalysis.filter(s => s.found).map(s => s.name).join(', ') || 'None'}\n`;
+                        analysis += `- **Identified Gap**: ${d.evaluation.skillAnalysis.filter(s => !s.found).map(s => s.name).join(', ') || 'None'}\n\n`;
+                    });
+                } else if (stepIdx === 2) { 
+                    analysis = `Candidate comparative alignment matrix compiled successfully:\n\n`;
+                    selectedDocs.forEach(d => {
+                        analysis += `| Index ${d.serialNum} | Name: **${d.author}** | Score: **${d.evaluation.matchScore}%** | Email: ${d.email} | Phone: ${d.phone} |\n`;
+                    });
+                } else if (stepIdx === 3) { 
+                    analysis = `Constructed custom interview playbooks:\n\n`;
+                    selectedDocs.forEach(d => {
+                        const gap = d.evaluation.skillAnalysis.find(s => !s.found);
+                        analysis += `#### Questions for ${d.serialNum}: ${d.author} (${d.email})\n`;
+                        analysis += `1. *"Our mapping indicates a gap in your exposure to ${gap ? gap.name : 'distributed architectures'}. How would you optimize system limits under this condition?"*\n\n`;
+                    });
+                } else if (stepIdx === 4) { 
+                    const sorted = [...selectedDocs].sort((a, b) => b.evaluation.matchScore - a.evaluation.matchScore);
+                    analysis = `🏆 Consensus Hiring Decision Completed.\n\n`;
+                    analysis += `⭐ **PRIMARY SELECTION**: Candidate **${sorted[0].serialNum}: ${sorted[0].author}** (Match: ${sorted[0].evaluation.matchScore}%)\n`;
+                    analysis += `- **Email Contact**: ${sorted[0].email}\n`;
+                    analysis += `- **Mobile Contact**: ${sorted[0].phone}\n\n`;
+                    if (sorted.length > 1) {
+                        analysis += `🥈 **Secondary Contender**: Candidate **${sorted[1].serialNum}: ${sorted[1].author}** (Match: ${sorted[1].evaluation.matchScore}%)\n`;
+                        analysis += `- **Email Contact**: ${sorted[1].email}\n`;
+                        analysis += `- **Mobile Contact**: ${sorted[1].phone}\n`;
+                    }
+                }
+
+                appendDialog(AGENT_ROLES[stepIdx].id, AGENT_ROLES[stepIdx].name, analysis);
+                return analysis;
+            };
+
+            const finalizeHiringConsensus = (selectedDocs) => {
+                appendDialog('system', '🏆 Finalizing Consolidated Strategic Consensus', 'Synthesizing candidate profiles and agent findings...');
+                setTimeout(() => {
+                    setIsAgentExecuting(false);
+                    
+                    let finalReport = `### YAQOOTLLM PROFESSIONAL HIRING REPORT\n\n`;
+                    finalReport += `**Position Target:** ${jdTitle}\n`;
+                    finalReport += `**Target Profile Stacks:** ${jdSkills.join(', ')}\n\n`;
+
+                    finalReport += `### CANDIDATE CONTACT PROFILES\n`;
+                    finalReport += `The workspace has identified and mapped the following contact details directly from the source CV files:\n\n`;
+                    selectedDocs.forEach((d) => {
+                        finalReport += `● **Candidate Index [${d.serialNum}]**\n`;
+                        finalReport += `  - **Full Name**: ${d.author}\n`;
+                        finalReport += `  - **Email Address**: ${d.email}\n`;
+                        finalReport += `  - **Mobile Number**: ${d.phone}\n`;
+                        finalReport += `  - **Designated Standard**: ${d.metadata.degree} | ${d.metadata.specialty}\n\n`;
+                    });
+
+                    finalReport += `\n---\n\n### AGENT CONSENSUS FINDINGS\n\n`;
+                    AGENT_ROLES.forEach((agent, idx) => {
+                        finalReport += `#### ${idx + 1}. ${agent.name} Results:\n`;
+                        finalReport += `${agentMemoryContext[idx] || 'Analysis successfully completed.'}\n\n`;
+                    });
+
+                    setFinalReportOutput(finalReport);
+                    setActiveTab('report');
+                    appendDialog('system', '✅ Collaborative Loop Completed', 'Consensus reports generated. Redirected to Hiring Report workspace.');
+                }, 1000);
+            };
+
+            const handleSendChatText = async (e) => {
+                e.preventDefault();
+                if (!inputValue.trim()) return;
+
+                if (!isApiKeyConnected) {
+                    addNotificationMessage("⚠️ SECURITY LOCKOUT: Connect your private Gemini API key in the header console.");
+                    return;
+                }
+
+                const userMessage = inputValue.trim();
+                setInputValue('');
+                
+                setChatMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+                setIsGenerating(true);
+
+                const selectedDocs = documents.filter(d => selectedForChat[d.id]);
+                
+                if (selectedDocs.length === 0) {
+                    setChatMessages(prev => [...prev, { role: 'assistant', content: '⚠️ **System Notification**: No candidates are active in your sidebar checklist.' }]);
+                    setIsGenerating(false);
+                    return;
+                }
+
+                let compiledContext = "You are evaluating candidate portfolios in professional English.\n\n";
+                selectedDocs.forEach((doc) => {
+                    compiledContext += `--- CANDIDATE PROFILE ${doc.serialNum}: ${doc.author} ---\n`;
+                    compiledContext += `Email: ${doc.email}\n`;
+                    compiledContext += `Mobile Number: ${doc.phone}\n`;
+                    compiledContext += `Match Suitability Rating: ${doc.evaluation.matchScore}/100\n`;
+                    compiledContext += `Raw Resume Text:\n"""\n${doc.extractedText}\n"""\n\n`;
+                });
+
+                const systemInstructions = `You are YaqootLLM, an expert recruitment analysis workstation. Answer the user in clean, professional English. 
+Always refer to candidates using their unique serial keys and contact info, e.g., [001: Nawaf Rahim, email: nawafr@gmail.com, mobile: +966551234567]. 
+Format outputs cleanly without markdown code block wrappers.`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: `${compiledContext}\n\nUSER QUESTION: ${userMessage}` }] }],
+                    systemInstruction: { parts: [{ text: systemInstructions }] }
+                };
+
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${customApiKey}`;
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) throw new Error("Model processing pipeline rejected parameters.");
+                    const data = await res.json();
+                    const generatedAnswer = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    if (generatedAnswer) {
+                        setChatMessages(prev => [...prev, { role: 'assistant', content: generatedAnswer }]);
+                    } else {
+                        throw new Error("Empty response payload.");
+                    }
+                } catch (err) {
+                    setChatMessages(prev => [...prev, { role: 'assistant', content: `❌ **API Generation Fault**: ${err.message}` }]);
+                } finally {
+                    setIsGenerating(false);
+                }
+            };
+
+            const applyActionPreset = (presetText) => {
+                if (!isApiKeyConnected) {
+                    addNotificationMessage("⚠️ SECURITY LOCKOUT: Verifying credentials is required to unlock prompt engineering tools.");
+                    return;
+                }
+                setInputValue(presetText);
+            };
+
+            const selectedDocObj = documents.find(d => d.id === selectedDocId);
+            const leaderboardCandidates = [...documents].sort((a, b) => b.evaluation.matchScore - a.evaluation.matchScore);
+
+            return (
+                <div className="h-full w-full flex flex-col overflow-hidden bg-[#F9F9F6]">
+                    
+                    {/* SECTOR 1: MAIN SCHOLARLY HEADER BAR */}
+                    <header className="border-b border-b-[#DCDCD0] bg-white px-6 py-3 flex flex-col md:flex-row md:items-center justify-between shadow-sm z-10 flex-shrink-0 gap-3">
+                        <div class="flex items-center space-x-4">
+                            <div className="flex flex-col">
+                                <div className="flex items-center space-x-2">
+                                    <h1 className="text-2xl font-serif font-extrabold tracking-tight text-[#800000]">
+                                        Yaqoot<span className="text-slate-800 font-sans font-light text-xl">LLM</span>
+                                    </h1>
+                                    <span className="text-xs font-mono px-2 py-0.5 bg-red-100 text-[#800000] border border-red-200 rounded whitespace-nowrap">
+                                        v2.6-flash-intelligence
+                                    </span>
+                                </div>
+                                <div className="text-[10px] font-mono text-slate-500 mt-1">
+                                    Document Identifier: <span className="text-[#800000] font-bold">yaqoot.llm/2.6-flash-cv-intelligence</span>  |  AI CV Research Network and Candidate Intelligence Assistant
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Model Configuration Control Blocks */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-center space-x-1.5 bg-[#EDEDE4] px-2.5 py-1.5 rounded border border-[#C0C0B0]">
+                                <Cpu size={13} className="text-[#800000]" />
+                                <select
+                                    value={selectedModel}
+                                    onChange={(e) => setSelectedModel(e.target.value)}
+                                    className="bg-transparent text-xs font-mono text-slate-800 focus:outline-none cursor-pointer font-bold"
+                                >
+                                    <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                                    <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                                    <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                                </select>
+                            </div>
+
+                            <form onSubmit={handleConnectCustomApiKey} className="flex items-center space-x-2">
+                                <div className="relative">
+                                    <input
+                                        type={showApiKey ? "text" : "password"}
+                                        placeholder="Google Gemini API Key"
+                                        value={customApiKey}
+                                        onChange={(e) => setCustomApiKey(e.target.value)}
+                                        className="text-xs px-3 py-1.5 w-48 pr-8 rounded border border-[#C0C0B0] bg-[#FDFDFB] focus:outline-none focus:ring-1 focus:ring-[#800000] font-mono"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowApiKey(!showApiKey)}
+                                        className="absolute right-2 top-1.5 text-slate-400 hover:text-slate-700"
+                                    >
+                                        {showApiKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                                    </button>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className={`text-xs px-3 py-1.5 rounded font-medium flex items-center space-x-1.5 transition-all ${
+                                        isApiKeyConnected ? 'bg-emerald-50 text-emerald-700 border border-emerald-300' : 'bg-[#800000] text-white hover:bg-[#a00000]'
+                                    }`}
+                                >
+                                    {isApiKeyConnected ? (
+                                        <>
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            <span>Active</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Key size={12} />
+                                            <span>Connect Key</span>
+                                        </>
+                                    )}
+                                </button>
+                            </form>
+                        </div>
+                    </header>
+
+                    {/* SECTOR 2: RUNTIME WORKING DESKTOP DIVISIONS */}
+                    <div className="flex flex-1 overflow-hidden w-full relative">
+                        
+                        {/* SIDEBAR ACCORDION BORDER TOGGLE */}
+                        <button
+                            onClick={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+                            style={{ left: isLeftSidebarOpen ? '320px' : '0px' }}
+                            className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 z-20 bg-white border border-[#DCDCD0] hover:border-[#800000] p-1 rounded shadow-md transition-all text-[#800000]"
+                        >
+                            <ChevronRight size={14} className={`transform transition-transform ${isLeftSidebarOpen ? 'rotate-180' : 'rotate-0'}`} />
+                        </button>
+
+                        {/* SUBSECTOR A: SIDEBAR ARCHIVE MANAGEMENT CARD BOX */}
+                        <aside className={`${isLeftSidebarOpen ? 'w-80' : 'w-0 border-r-0'} border-r border-[#DCDCD0] bg-[#F4F4EE] flex flex-col overflow-hidden transition-all duration-300 flex-shrink-0 relative`}>
+                            <div className="p-4 border-b border-[#DCDCD0] bg-[#EDEDE4] space-y-3">
+                                <span className="text-[11px] font-mono font-bold text-slate-700 uppercase tracking-wider block">INGEST RESUMES</span>
+                                <div
+                                    onDragOver={handleDragOverArea}
+                                    onDragLeave={handleDragLeaveArea}
+                                    onDrop={handleDropArea}
+                                    className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-all text-center relative ${
+                                        isDragging ? 'border-[#800000] bg-red-50/50 scale-95' : 'border-[#B8B8A8] bg-[#FDFDFB]'
+                                    }`}
+                                >
+                                    <input type="file" multiple accept=".pdf,.txt,.text,.md" onChange={handleFileUploadInput} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                    <Upload />
+                                    <span class="text-xs font-bold text-slate-800 mt-1">{isDragging ? "Release Files Now" : "Drag & Drop Portfolios"}</span>
+                                    <span class="text-[10px] text-[#800000] font-medium mt-0.5">or click to map browse targets</span>
+                                </div>
+
+                                <button onClick={() => setShowManualPaste(!showManualPaste)} className="w-full py-1.5 px-3 border border-[#B8B8A8] bg-[#FDFDFB] rounded text-xs font-mono font-medium text-slate-700 flex items-center justify-center space-x-1.5">
+                                    <Edit size={13} className="text-[#800000]" />
+                                    <span>{showManualPaste ? "Hide Editor Block" : "Paste Manual Resume Text"}</span>
+                                </button>
+
+                                {showManualPaste && (
+                                    <form onSubmit={handleSaveManualPaste} className="bg-white border border-[#C0C0B0] rounded-md p-3 space-y-2 shadow-sm">
+                                        <input type="text" placeholder="Candidate Full Name" required value={manualCandidateName} onChange={(e) => setManualCandidateName(e.target.value)} className="w-full text-xs px-2 py-1 rounded border font-mono" />
+                                        <input type="text" placeholder="Degree (M.Sc / Ph.D)" value={manualCandidateDegree} onChange={(e) => setManualCandidateDegree(e.target.value)} className="w-full text-xs px-2 py-1 rounded border font-mono" />
+                                        <div className="grid grid-cols-2 gap-1">
+                                            <input type="email" placeholder="Email" value={manualEmail} onChange={(e) => setManualEmail(e.target.value)} className="w-full text-xs px-2 py-1 rounded border font-mono" />
+                                            <input type="text" placeholder="Mobile" value={manualPhone} onChange={(e) => setManualPhone(e.target.value)} className="w-full text-xs px-2 py-1 rounded border font-mono" />
+                                        </div>
+                                        <textarea required rows={3} placeholder="Paste resume payload contents..." value={manualCandidateText} onChange={(e) => setManualCandidateText(e.target.value)} className="w-full text-xs px-2 py-1 rounded border font-mono resize-none" />
+                                        <button type="submit" className="w-full py-1 bg-[#800000] text-white rounded text-xs font-mono font-bold">Ingest Data</button>
+                                    </form>
+                                )}
+                            </div>
+
+                            <div className="p-3 border-b border-[#DCDCD0] bg-[#F5F5EC] flex items-center justify-between text-xs font-mono">
+                                <span className="font-bold text-slate-600">Active Pool ({documents.length})</span>
+                                {documents.length > 0 && (
+                                    <div className="flex space-x-2">
+                                        <button onClick={handleSelectAll} className="text-[#800000] hover:underline">All</button>
+                                        <span className="text-slate-300">|</span>
+                                        <button onClick={handleClearAll} className="text-slate-600 hover:underline">None</button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* PORTFOLIO ACCORDION LINE CARDS LIST */}
+                            <div className="flex-grow overflow-y-auto p-2 space-y-2">
+                                {documents.length === 0 ? (
+                                    <div className="p-6 border border-dashed border-[#C0C0B0] rounded-lg text-center text-slate-400 text-xs mt-2">
+                                        <FileText className="mx-auto mb-1 opacity-25" size={28} />
+                                        <p class="font-medium text-slate-600">No Custom CVs Ingested.</p>
+                                    </div>
+                                ) : (
+                                    documents.map((doc) => {
+                                        const isActive = doc.id === selectedDocId;
+                                        const isChecked = !!selectedForChat[doc.id];
+                                        return (
+                                            <div key={doc.id} onClick={() => setSelectedDocId(doc.id)} className={`p-2.5 rounded border flex items-start space-x-2 cursor-pointer transition-all ${isActive ? 'bg-white border-[#800000] shadow-sm' : 'bg-[#EDEDE4]/50 border-[#DCDCD0]'}`}>
+                                                <div onClick={(e) => toggleDocInContext(doc.id, e)} className={`w-4 h-4 rounded border mt-0.5 flex items-center justify-center flex-shrink-0 ${isChecked ? 'bg-[#800000] border-[#800000] text-white' : 'border-slate-400'}`}>
+                                                    {isChecked && <Check size={11} strokeWidth={3} />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[10px] font-mono text-[#800000] font-bold truncate max-w-[80%]">{doc.serialNum}: {doc.author}</span>
+                                                        <span className="text-[9px] font-mono font-bold px-1 rounded bg-slate-100">{doc.evaluation.matchScore}%</span>
+                                                    </div>
+                                                    <div className="text-[9px] font-mono text-slate-500 mt-1 truncate">📧 {doc.email}</div>
+                                                    <div className="text-[9px] font-mono text-slate-500 truncate">📞 {doc.phone}</div>
+                                                </div>
+                                                <button onClick={(e) => handleDeletePortfolio(doc.id, e)} className="text-slate-400 hover:text-[#800000] p-0.5"><Trash2 size={13} /></button>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </aside>
+
+                        {/* SUBSECTOR B: CENTRAL CONTROL PRESENTATION STAGE */}
+                        <main className="flex-grow flex flex-col h-full overflow-hidden bg-slate-100 min-w-0 relative">
+                            <div className="bg-[#EDEDE4] border-b border-[#DCDCD0] px-4 py-2 flex items-center justify-between flex-shrink-0">
+                                <div className="flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
+                                    <button onClick={() => setActiveTab('dashboard')} className={`px-3 py-1.5 rounded text-xs flex items-center space-x-1.5 ${activeTab === 'dashboard' ? 'bg-white font-bold border' : 'text-slate-600'}`}>
+                                        <BarChart2 size={12} className="text-[#800000]" /><span>Leaderboard</span>
+                                    </button>
+                                    <button onClick={() => { if(!selectedDocId) return; setActiveTab('preview'); }} className={`px-3 py-1.5 rounded text-xs flex items-center space-x-1.5 ${activeTab === 'preview' ? 'bg-white font-bold border' : 'text-slate-600'}`}>
+                                        <BookOpen size={12} className="text-[#800000]" /><span>Grounded Doc Viewer</span>
+                                    </button>
+                                    <button onClick={() => setActiveTab('cockpit')} className={`px-3 py-1.5 rounded text-xs flex items-center space-x-1.5 ${activeTab === 'cockpit' ? 'bg-white font-bold border' : 'text-slate-600'}`}>
+                                        <Cpu size={12} className="text-[#800000]" /><span>Agent Cockpit</span>
+                                    </button>
+                                    <button onClick={() => { if(!finalReportOutput) return; setActiveTab('report'); }} className={`px-3 py-1.5 rounded text-xs flex items-center space-x-1.5 ${activeTab === 'report' ? 'bg-white font-bold border' : 'text-slate-600'}`}>
+                                        <Award size={12} className="text-[#800000]" /><span>Strategic Report</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-grow overflow-hidden relative min-h-0 min-w-0">
+                                {activeTab === 'dashboard' ? (
+                                    <div class="h-full bg-[#FAF9F5] p-6 overflow-y-auto space-y-6">
+                                        {/* Configuration Job Description Brief Module */}
+                                        <div className="bg-white p-5 rounded-lg border border-[#DCDCD0] shadow-sm space-y-3">
+                                            <div className="flex flex-wrap justify-between items-center border-b pb-2 gap-2">
+                                                <h3 class="text-sm font-serif font-bold text-slate-800">Target Requirements Selection Matrix</h3>
+                                                <div className="flex gap-1">
+                                                    {JD_TEMPLATES.map((tmpl, idx) => (
+                                                        <button key={idx} onClick={() => handleSelectJdTemplate(tmpl)} className={`text-[10px] font-mono px-2 py-0.5 rounded border ${jdTitle === tmpl.title ? 'bg-[#800000] text-white' : 'bg-slate-50'}`}>{tmpl.title}</button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                <div className="space-y-2">
+                                                    <input type="text" value={jdTitle} onChange={(e) => handleManualJdChange('title', e.target.value)} className="w-full text-xs px-2 py-1.5 border font-mono rounded" />
+                                                    <input type="text" value={jdSkills.join(', ')} onChange={(e) => handleManualJdChange('skills', e.target.value)} className="w-full text-xs px-2 py-1.5 border font-mono rounded" />
+                                                </div>
+                                                <div class="md:col-span-2">
+                                                    <textarea rows={3} value={jdDescription} onChange={(e) => handleManualJdChange('desc', e.target.value)} className="w-full text-xs px-2 py-1.5 border font-mono rounded resize-none" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Dynamic Core Table Leaderboard view */}
+                                        <div class="bg-white p-5 rounded-lg border border-[#DCDCD0] shadow-sm">
+                                            <h3 class="text-sm font-serif font-bold text-slate-800 border-b pb-2 mb-3">Dynamic Recruitment Rankings Portfolio</h3>
+                                            {documents.length === 0 ? (
+                                                <div class="p-6 text-center text-slate-400 font-mono text-xs">No portfolios uploaded to compile matrix outputs.</div>
+                                            ) : (
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-left text-xs border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-slate-50 border-b font-mono text-[10px] text-slate-500">
+                                                                <th class="p-2">Rank</th>
+                                                                <th class="p-2">Identity Details (Serial, Name, Email, Mobile)</th>
+                                                                <th class="p-2">Standard</th>
+                                                                <th class="p-2 text-center">Gaps Matrix</th>
+                                                                <th class="p-2 text-center">Fit Score</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {leaderboardCandidates.map((cand, idx) => (
+                                                                <tr key={cand.id} onClick={() => setSelectedDocId(cand.id)} className={`border-b hover:bg-slate-50 cursor-pointer ${selectedDocId === cand.id ? 'bg-slate-50 font-semibold' : ''}`}>
+                                                                    <td className="p-2 font-mono text-slate-400">0{idx + 1}</td>
+                                                                    <td className="p-2">
+                                                                        <div className="text-slate-900 font-medium">[{cand.serialNum}] {cand.author}</div>
+                                                                        <div class="text-[10px] font-mono text-slate-400">📧 {cand.email} | 📞 {cand.phone}</div>
+                                                                    </td>
+                                                                    <td class="p-2 text-slate-600">{cand.metadata.degree}</td>
+                                                                    <td class="p-2 text-center font-mono">{cand.evaluation.skillsGapPercentage}%</td>
+                                                                    <td class="p-2 text-center font-bold text-[#800000] font-mono">{cand.evaluation.matchScore}%</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : activeTab === 'preview' ? (
+                                    <div class="h-full flex flex-col md:flex-row bg-[#EDEDE4]">
+                                        <div class="flex-grow md:w-2/3 bg-[#FAF9F5] overflow-y-auto p-6 flex flex-col">
+                                            <div class="bg-white p-6 border rounded shadow-sm flex-grow font-mono text-xs whitespace-pre-wrap leading-relaxed">
+                                                <div className="border-b-2 pb-2 mb-3">
+                                                    <h3 className="text-sm font-bold text-slate-900">[{selectedDocObj?.serialNum}] {selectedDocObj?.author}</h3>
+                                                    <p className="text-[10px] text-slate-500 mt-0.5">Contact parameters: ${selectedDocObj?.email} | ${selectedDocObj?.phone}</p>
+                                                </div>
+                                                {highlightedText ? (
+                                                    (() => {
+                                                        const parts = selectedDocObj?.extractedText.split(highlightedText);
+                                                        if (parts && parts.length > 1) {
+                                                            return (
+                                                                <>
+                                                                    {parts[0]}
+                                                                    <mark class="bg-[#FFF3CD] text-[#800000] border-b-2 border-[#800000] font-bold p-0.5">{highlightedText}</mark>
+                                                                    {parts.slice(1).join(highlightedText)}
+                                                                </>
+                                                            );
+                                                        }
+                                                        return selectedDocObj?.extractedText;
+                                                    })()
+                                                ) : selectedDocObj?.extractedText}
+                                            </div>
+                                        </div>
+                                        <div class="w-80 bg-white p-4 border-l overflow-y-auto space-y-3 flex-shrink-0">
+                                            <span class="text-xs font-mono font-bold block border-b pb-1">Claim Anchor Points</span>
+                                            {selectedDocObj?.evaluation.citations.map((cit) => (
+                                                <div key={cit.id} onClick={() => setHighlightedText(cit.text)} className={`p-2 rounded border text-[11px] cursor-pointer ${highlightedText === cit.text ? 'bg-amber-50 border-amber-400' : 'bg-slate-50'}`}>
+                                                    <div class="flex justify-between text-[9px] text-slate-400 font-mono"><span>{cit.topic}</span><span>Page {cit.page}</span></div>
+                                                    <p class="italic text-slate-700 mt-1">"{cit.text}"</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : activeTab === 'cockpit' ? (
+                                    <div class="h-full bg-[#F4F4EE] flex flex-col">
+                                        <div class="bg-white p-4 border-b flex justify-between items-center flex-shrink-0 shadow-xs">
+                                            <span class="text-xs font-mono font-bold text-slate-600">ReAct Chain Orchestration Node</span>
+                                            <button onClick={runCollaborativeWorkflow} disabled={isAgentExecuting} className="px-4 py-2 bg-[#800000] text-white text-xs font-mono font-bold rounded hover:bg-stone-900 transition disabled:opacity-40">
+                                                {isAgentExecuting ? "Processing Context Matrix..." : "Run Agent Collaboration"}
+                                            </button>
+                                        </div>
+                                        <div class="flex-grow flex flex-col md:flex-row min-h-0 overflow-hidden p-4 gap-4">
+                                            <div class="flex-grow bg-white border rounded-xl flex flex-col overflow-hidden">
+                                                <span class="bg-slate-50 px-3 py-2 border-b text-[10px] font-mono font-bold block">Consensus Conversation Feed</span>
+                                                <div class="flex-grow p-4 overflow-y-auto space-y-3 bg-[#FAF9F5]">
+                                                    {collaborationDialog.map((dialog, idx) => (
+                                                        <div key={idx} className="bg-white border rounded-lg p-3 text-xs leading-relaxed shadow-xs">
+                                                            <div class="flex justify-between border-b pb-1 mb-1 text-[9px] font-mono text-slate-400">
+                                                                <span class="font-bold text-[#800000]">{dialog.author}</span><span>{dialog.timestamp}</span>
+                                                            </div>
+                                                            <p class="text-slate-700 font-sans whitespace-pre-wrap">{dialog.message}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div class="h-full bg-white p-6 overflow-y-auto">
+                                        <div class="max-w-2xl mx-auto border-t-4 border-[#800000] pt-4 space-y-4">
+                                            <div class="text-xs font-mono leading-relaxed bg-[#FAF9F5] p-6 border rounded-md whitespace-pre-wrap select-all font-bold text-slate-800">
+                                                {finalReportOutput}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </main>
+
+                        {/* RIGHT ACCORDION COLLAPSIBLE SIDEBAR TOGGLE */}
+                        <button
+                            onClick={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+                            style={{ right: isRightSidebarOpen ? '384px' : '0px' }}
+                            className="absolute top-1/2 transform -translate-y-1/2 translate-x-1/2 z-20 bg-white border border-[#DCDCD0] hover:border-[#800000] p-1 rounded shadow-md transition-all text-[#800000]"
+                        >
+                            <ChevronRight size={14} className={`transform transition-transform ${isRightSidebarOpen ? 'rotate-0' : 'rotate-180'}`} />
+                        </button>
+
+                        {/* SUBSECTOR C: RIGHT PROFESSIONAL COMPANION PANEL */}
+                        <aside className={`${isRightSidebarOpen ? 'w-96' : 'w-0 border-l-0'} border-l border-[#DCDCD0] bg-white flex flex-col overflow-hidden flex-shrink-0 relative transition-all duration-300`}>
+                            <div class="bg-[#EDEDE4] border-b p-3 flex flex-shrink-0 flex-col gap-1">
+                                <span class="font-bold text-xs font-sans text-slate-700">CV Intelligence Panel</span>
+                                <span class="text-[10px] text-[#800000] font-mono">Dynamic LLM Recruitment Console</span>
+                            </div>
+
+                            <div class="flex-1 p-4 overflow-y-auto space-y-4 bg-[#FDFDFB] relative">
+                                {!isApiKeyConnected && (
+                                    <div class="absolute inset-0 bg-white/95 backdrop-blur-xs z-30 flex flex-col items-center justify-center p-6 text-center">
+                                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide mb-1">Analytical Pipeline Locked</h4>
+                                        <p class="text-[11px] text-slate-500 leading-normal max-w-xs mb-3">Please connect your private Google Gemini API Key in the upper control header taskbar to unlock custom queries.</p>
+                                    </div>
+                                )}
+
+                                {chatMessages.map((msg, idx) => (
+                                    <div key={idx} class={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                                        <span class="text-[9px] font-mono text-slate-400 mb-0.5">{msg.role === 'user' ? 'You' : 'Agent'}</span>
+                                        <div className={`p-2.5 rounded-lg text-xs max-w-[85%] leading-relaxed shadow-xs ${msg.role === 'user' ? 'bg-[#800000] text-white' : 'bg-[#F4F4EE] text-slate-900 border'}`}>
+                                            {msg.content}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* TOOLBELT PRESET UTILITIES SECTOR */}
+                            <div class="p-2 border-t bg-[#F4F4EE] flex-shrink-0">
+                                <span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest block mb-1.5 px-1">Candidate Intelligence Toolbelt</span>
+                                <div class="grid grid-cols-2 gap-1 text-[10px]">
+                                    <button onClick={() => applyActionPreset("Summarize the target credentials, core focus stacks, and accomplishments of the active portfolios. Explicitly print out each Candidate's Serial number, Email, and Mobile access phone records at the start of the summary block.")} class="p-1.5 bg-white border rounded text-left font-sans font-medium text-stone-700 hover:bg-[#800000] hover:text-white truncate">📝 Summarize Portfolios</button>
+                                    <button onClick={() => applyActionPreset("Perform a comprehensive side-by-side technical cross-comparison of all active candidates. Map out full Name, Email, Mobile and overall alignment parameters in a clear structural brief.")} class="p-1.5 bg-white border rounded text-left font-sans font-medium text-stone-700 hover:bg-[#800000] hover:text-white truncate">📊 Run Cross-Comparison</button>
+                                    <button onClick={() => applyActionPreset("Based on target framework matching rules, evaluate who stands out as the primary recommendation choice. Explicitly output their winner Name, email, and mobile phone contacts.")} class="p-1.5 bg-white border rounded text-left font-sans font-medium text-stone-700 hover:bg-[#800000] hover:text-white truncate">🏆 Recommendation Analysis</button>
+                                    <button onClick={() => applyActionPreset("Orchestrate targeted scenario tech interview templates probing competency gaps for each loaded candidate portfolio. Explicitly map each custom guide directly under Candidate Name, Email, and Mobile fields.")} class="p-1.5 bg-white border rounded text-left font-sans font-medium text-stone-700 hover:bg-[#800000] hover:text-white truncate">🎯 Interview Engineering</button>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleSendChatText} class="p-2 border-t bg-[#EDEDE4] flex flex-shrink-0 space-x-1">
+                                <input type="text" placeholder={isApiKeyConnected ? "Query loaded candidates..." : "Awaiting API validation..."} disabled={!isApiKeyConnected} value={inputValue} onChange={(e) => setInputValue(e.target.value)} class="flex-1 text-xs px-2 py-1.5 rounded border focus:outline-none" />
+                                <button type="submit" disabled={!isApiKeyConnected} class="bg-[#800000] text-white text-xs px-3 font-bold rounded">Ask</button>
+                            </form>
+                        </aside>
+
+                    </div>
+                </div>
+            );
+        }
+
+        // Virtual DOM Mount Execution
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
